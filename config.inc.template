@@ -1,0 +1,21 @@
+<?php
+
+/*
+Config Variables for connection to databases and email
+*/
+
+$neousername = "";
+$neopassword = "";
+$neohost = "localhost";
+$neoport = 7687;			// 7474 for http / 7687 for bolt
+$neomode = "bolt";			// bolt / default
+$dbusername = "";
+$dbpassword = "";
+$dbname = "";
+$dbhost = "localhost";
+$straboemailaddress = "";
+$straboemailpassword = "";
+$hashval="";
+$captchasecret="";
+$vloc="/var/www/versions";
+?>
