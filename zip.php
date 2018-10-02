@@ -1,5 +1,5 @@
 <?PHP
-
+exit();
 include("Classes/StraboTileClass.php");
 
 $tile = new StraboTileClass();

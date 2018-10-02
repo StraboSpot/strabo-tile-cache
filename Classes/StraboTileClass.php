@@ -249,6 +249,7 @@ class StraboTileClass
 	}
 
 	public function showSingleTile($cruft,$access_token){
+
 		$response = $this->loadTile($cruft,$access_token);
 		if($response=="success"){
 			//show tile
@@ -382,6 +383,7 @@ class StraboTileClass
 
 							//big tile doesn't exist yet, so let's get it first
 							$url = "https://macrostrat.org/api/v2/maps/burwell/emphasized/$zoom/$x/$y/tile.png";
+							echo "url: $url";exit();
 							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA";
 							$ch = curl_init();
 							curl_setopt($ch, CURLOPT_URL, $url);
@@ -1630,7 +1632,7 @@ class StraboTileClass
 
 
 
-	public function downloadZip($layer,$extent,$zoom,$id,$access_token,$username){
+	public function sdownloadZip($layer,$extent,$zoom,$id,$access_token,$username){
 
 		//check layer
 		if(in_array($layer,$this->valid_layers)){
