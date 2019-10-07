@@ -1,11 +1,20 @@
 <?PHP
 
+/*
+http://tiles.strabospot.org/v4/mapbox.satellite/19/119885/201168.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+http://tiles.strabospot.org/v4/mapbox.outdoors/19/119886/201171.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+
+http://b.tiles.mapbox.com/v4/mapbox.satellite/19/119885/201168.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+http://b.tiles.mapbox.com/v4/mapbox.outdoors/19/119886/201171.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+*/
+
 function dumpVar($var){
 	echo "<pre>";
 	print_r($var);
 	echo "</pre>";
 }
 
+//dumpVar($_GET);
 $uri = $_SERVER['REQUEST_URI'];
 
 $access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
@@ -51,7 +60,9 @@ if(in_array($dir1,$valid_layers)){
 	if(!file_exists("cache/$dir1/$dir2/$dir3")){
 		mkdir("cache/$dir1/$dir2/$dir3");
 	}
-
+	
+	//echo "ctype: $ctype";exit();
+	
 	if(!file_exists("cache/$dir1/$dir2/$dir3/$filename" )){
 		
 		$url = "http://api.tiles.mapbox.com/v4/$dir1/$dir2/$dir3/$filename?access_token=$access_token";
@@ -83,7 +94,7 @@ if(in_array($dir1,$valid_layers)){
 
 	}else{
 		//read file and send to browser
-		//header("Access-Control-Allow-Origin: *"); //this breaks the old app
+		//header("Access-Control-Allow-Origin: *");
 		header("Content-Type: $ctype");
 		header('Content-Length: ' . filesize("cache/$dir1/$dir2/$dir3/$filename"));
 		readfile("cache/$dir1/$dir2/$dir3/$filename");

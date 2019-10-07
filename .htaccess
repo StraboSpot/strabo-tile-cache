@@ -1,8 +1,18 @@
 RewriteEngine on
 
 RewriteRule ^v4/(.*)$ tcache.php?cruft=$1 [L]
+
 RewriteRule ^v5/(.*)$ singletile.php?cruft=$1 [L]
+
+
 RewriteRule ^asyncstatus/(.*)$ astatus.php?uid=$1 [L]
+
+
+
+
+
 
 Header add Access-Control-Allow-Origin "*"
 Header add Access-Control-Allow-Methods: "GET,POST,OPTIONS,DELETE,PUT"
+
+

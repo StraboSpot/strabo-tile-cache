@@ -17,6 +17,9 @@
 			custom mapbox style https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
 			mapwarper https://www.strabospot.org/mwproxy/32790/16/14986/25147.png
 			https://strabospot.org/geotiff/tiles/5b75967d71bc0/15/7493/12572.png strabomymaps
+
+			mapbox classic https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+
 			
 			mapbox satellite http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
 			mapbox topo http://devtiles.strabospot.org/v4/mapbox.outdoors/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
@@ -86,7 +89,7 @@ class StraboTileClass
  	*/
  	public function StraboTileClass(){
  		$this->db=$db;
- 		$this->valid_layers = array("mapbox.satellite","mapbox.outdoors","mapboxstyles","mapboxstyles","osm","mapwarper","strabomymaps","macrostrat");
+ 		$this->valid_layers = array("mapbox.satellite","mapbox.outdoors","mapboxstyles","mapboxclassic","osm","mapwarper","strabomymaps","macrostrat");
  		$this->osmserver="a";
  	
 
@@ -261,7 +264,7 @@ class StraboTileClass
 			if($dir1=="mapbox.satellite" || $dir1=="mapbox.outdoors" || $dir1=="osm" || $dir1=="macrostrat"){
 				$filename = $parts[3];
 				$lookfile="cache/$dir1/$dir2/$dir3/$filename";
-			}elseif($dir1=="mapwarper" || $dir1=="strabomymaps"){
+			}elseif($dir1=="mapwarper" || $dir1=="strabomymaps" || $dir1=="mapboxclassic"){
 				$dir4 = $parts[3];
 				if(!file_exists("cache/$dir1/$dir2/$dir3/$dir4")){mkdir("cache/$dir1/$dir2/$dir3/$dir4");}
 				$filename = $parts[4];
@@ -331,7 +334,7 @@ class StraboTileClass
 				if(!is_numeric($dir2)){exit("Invalid Request");}
 				if(!is_numeric($dir3)){exit("Invalid Request");}
 				$lookfile="cache/$dir1/$dir2/$dir3/$filename";
-			}elseif($dir1=="mapwarper" || $dir1=="strabomymaps"){
+			}elseif($dir1=="mapwarper" || $dir1=="strabomymaps" || $dir1=="mapboxclassic"){
 				$dir4 = $parts[3];
 				if(!file_exists("cache/$dir1/$dir2/$dir3/$dir4")){mkdir("cache/$dir1/$dir2/$dir3/$dir4");}
 				$filename = $parts[4];
@@ -518,6 +521,9 @@ class StraboTileClass
 						$url = "https://www.strabospot.org/mwproxy/$dir2/$dir3/$dir4/$filename";
 					}elseif($dir1=="mapboxstyles"){
 						$url = "https://api.mapbox.com/styles/v1/$dir2/$dir3/tiles/256/$dir4/$dir5/$filename?access_token=$access_token";
+					}elseif($dir1=="mapboxclassic"){
+						https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+						$url = "https://api.mapbox.com/v4/$dir2/$dir3/$dir4/$dir5/$filename?access_token=$access_token";
 					}elseif($dir1=="strabomymaps"){
 						$url="https://strabospot.org/geotiff/tiles/$dir2/$dir3/$dir4/$filename";
 					}else{
@@ -1092,6 +1098,13 @@ class StraboTileClass
 								//https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
 								$url = "https://api.mapbox.com/styles/v1/$username/$id/tiles/256/0/0/0?access_token=$access_token";
 								if(!$this->checkLink($url)) $this->dbDie($uid,"Invalid Map Specified");
+							}elseif($layer=="mapboxclassic"){
+								if($id=="") $this->doDie("ID not provided.");
+								if($access_token=="") $this->dbDie($uid,"Access token not provided.");
+								//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+								$url = "https://api.mapbox.com/v4/$id/0/0/0.png?access_token=$access_token";
+								echo $url;
+								if(!$this->checkLink($url)) $this->dbDie($uid,"Invalid Map Specified: $url");
 							}elseif($layer=="strabomymaps"){
 								if($id=="") $this->doDie("ID not provided.");
 								$url="https://strabospot.org/geotiff/tiles/$id/0/0/0.png";
@@ -1126,7 +1139,7 @@ class StraboTileClass
 									if(!file_exists("cache/$layer")){mkdir("cache/$layer");}
 									if(!file_exists("cache/$layer/$z")){mkdir("cache/$layer/$z");}
 									if(!file_exists("cache/$layer/$z/$x")){mkdir("cache/$layer/$z/$x");}
-								}elseif($layer=="mapwarper" || $layer=="strabomymaps"){
+								}elseif($layer=="mapwarper" || $layer=="strabomymaps" || $layer=="mapboxclassic"){
 									if(!file_exists("cache/$layer")){mkdir("cache/$layer");}
 									if(!file_exists("cache/$layer/$id")){mkdir("cache/$layer/$id");}
 									if(!file_exists("cache/$layer/$id/$z")){mkdir("cache/$layer/$id/$z");}
@@ -1162,6 +1175,12 @@ class StraboTileClass
 									$loadfile="$layer/$id/$z/$x/$y.$filetype";
 									if($id=="") $this->dbDie($uid,"ID not provided.");
 									$url="https://strabospot.org/geotiff/tiles/$id/$z/$x/$y.$filetype";
+								}elseif($layer=="mapboxclassic"){
+									//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+									$filetype="png";
+									$loadfile="$layer/$id/$z/$x/$y.$filetype";
+									if($id=="") $this->dbDie($uid,"ID not provided.");
+									$url="https://api.mapbox.com/v4/$id/$z/$x/$y.$filetype?access_token=$access_token";
 								}elseif($layer=="macrostrat"){
 									//http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
 									//http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/15/7493/12572.png strabomymaps
@@ -1233,7 +1252,7 @@ class StraboTileClass
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
 								
-								}elseif($layer=="mapwarper" || $layer=="strabomymaps"){
+								}elseif($layer=="mapwarper" || $layer=="strabomymaps" || $layer=="mapboxclassic"){
 									//http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
 									//http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/15/7493/12572.png strabomymaps
 									$filetype="png";
@@ -1256,7 +1275,7 @@ class StraboTileClass
 										$this->dbDie($uid,"Error: Access token not provided.");
 									}
 								}
-							
+
 								exec("ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile");
 							
 								$jsontiles[]=$newtile;
@@ -1632,261 +1651,13 @@ class StraboTileClass
 
 
 
-	public function sdownloadZip($layer,$extent,$zoom,$id,$access_token,$username){
-
-		//check layer
-		if(in_array($layer,$this->valid_layers)){
-			if($this->checkExtent($extent)){
-			
-				switch ($layer) {
-					case "mapbox.satellite":
-						$maxzoom = 19;
-						break;
-					case "mapbox.outdoors":
-						$maxzoom = 28;
-						break;
-					case "openstreetmaps":
-						$maxzoom = 16;
-						break;
-					default:
-						$maxzoom = 16;
-				}
-			
-				if(is_numeric($zoom) && $zoom > -1){				
-					if($zoom <= $maxzoom){
-					
-						//everything checks out. Create zip file to download.
-						//first, gather tile ids
-						$alltiles=[];
-					
-						$outercount = 0;
-						
-						$outertiles = $this->getOuterZooms($extent, $zoom);
-						foreach($outertiles as $tileId){
-							if(!in_array($tileId, $alltiles)){
-								array_push($alltiles,$tileId);
-								$outercount ++;
-							}
-							if($outercount>3000){
-								$this->doDie("Zoom Level is too large.");
-
-							}
-						}
-
-						$zoomleveltiles = $this->getTileIds($extent, $zoom);
-						foreach($zoomleveltiles as $tileId){
-							if(!in_array($tileId, $alltiles)){
-								array_push($alltiles,$tileId);
-							}
-						}
-					
-						//check for valid layer here
-						if($layer=="mapwarper"){
-							if($id=="") $this->doDie("ID not provided.");
-							$url = "https://www.strabospot.org/mwproxy/$id/0/0/0.png";
-							if(!$this->checkLink($url)) $this->doDie("Invalid Map Specified");
-						}elseif($layer=="mapboxstyles"){
-							if($username=="") $this->doDie("Username not provided.");
-							if($access_token=="") $this->doDie("Access token not provided.");
-							//https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
-							$url = "https://api.mapbox.com/styles/v1/$username/$id/tiles/256/0/0/0?access_token=$access_token";
-							if(!$this->checkLink($url)) $this->doDie("Invalid Map Specified");
-						}elseif($layer=="strabomymaps"){
-							if($id=="") $this->doDie("ID not provided.");
-							$url="https://strabospot.org/geotiff/tiles/$id/0/0/0.png";
-							if(!$this->checkLink($url)) $this->doDie("Invalid Map Specified");
-						}
-
-						$zipdir = rand(111111111,999999999);
-						mkdir("ziptemp/$zipdir");
-						mkdir("ziptemp/$zipdir/$uid");
-						mkdir("ziptemp/$zipdir/$uid/tiles");
-						//mkdir("ziptemp/$zipdir/tilecache/tiles/$layer");
-
-						//first, batch load tiles...
-						$batchtiles=array();
-						foreach($alltiles as $oldtile){
-
-							$tileparts = explode("/",$oldtile);
-							$z = $tileparts[0];
-							$x = $tileparts[1];
-							$y = $tileparts[2];
-
-							$newtile = "tiles/$z"."_".$x."_"."$y.png";
-							
-							if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm"){
-								if(!file_exists("cache/$layer")){mkdir("cache/$layer");}
-								if(!file_exists("cache/$layer/$z")){mkdir("cache/$layer/$z");}
-								if(!file_exists("cache/$layer/$z/$x")){mkdir("cache/$layer/$z/$x");}
-							}elseif($layer=="mapwarper" || $layer=="strabomymaps"){
-								if(!file_exists("cache/$layer")){mkdir("cache/$layer");}
-								if(!file_exists("cache/$layer/$id")){mkdir("cache/$layer/$id");}
-								if(!file_exists("cache/$layer/$id/$z")){mkdir("cache/$layer/$id/$z");}
-								if(!file_exists("cache/$layer/$id/$z/$x")){mkdir("cache/$layer/$id/$z/$x");}
-							}elseif($layer=="mapboxstyles"){
-								if(!file_exists("cache/$layer")){mkdir("cache/$layer");}
-								if(!file_exists("cache/$layer/$username")){mkdir("cache/$layer/$username");}
-								if(!file_exists("cache/$layer/$username/$id")){mkdir("cache/$layer/$username/$id");}
-								if(!file_exists("cache/$layer/$username/$id/$z")){mkdir("cache/$layer/$username/$id/$z");}
-								if(!file_exists("cache/$layer/$username/$id/$z/$x")){mkdir("cache/$layer/$username/$id/$z/$x");}
-							}
-
-							if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors"){
-								//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
-								$filetype="png";
-								$loadfile="$layer/$z/$x/$y.$filetype";
-								$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
-								$url = "http://api.tiles.mapbox.com/v4/$layer/$z/$x/$y.$filetype?access_token=$access_token";
-							}elseif($layer=="osm"){
-								$filetype="png";
-								$loadfile="$layer/$z/$x/$y.$filetype";
-								$url = "https://".$this->osmserver.".tile.openstreetmap.org/$z/$x/$y.$filetype";
-								$this->rollOSMServer();
-							}elseif($layer=="mapwarper"){
-								$filetype="png";
-								$loadfile="$layer/$id/$z/$x/$y.$filetype";
-								$url = "https://www.strabospot.org/mwproxy/$id/$z/$x/$y.$filetype";
-								if($id=="") $this->doDie("ID not provided.");
-							}elseif($layer=="strabomymaps"){
-								//http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
-								//http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/15/7493/12572.png strabomymaps
-								$filetype="png";
-								$loadfile="$layer/$id/$z/$x/$y.$filetype";
-								if($id=="") $this->doDie("ID not provided.");
-								$url="https://strabospot.org/geotiff/tiles/$id/$z/$x/$y.$filetype";
-							}elseif($layer=="mapboxstyles"){
-								//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
-								$filetype="";
-								$loadfile="$layer/$username/$id/$z/$x/$y";
-								if($id=="") $this->doDie("ID not provided.");
-								if($username=="") $this->doDie("Username not provided.");
-								if($access_token=="") $this->doDie("Access token not provided.");
-								$url = "https://api.mapbox.com/styles/v1/$username/$id/tiles/256/$z/$x/$y?access_token=$access_token";
-							}
-
-							//loadTile($dirs,$access_token)  dirs looks like: mapbox.satellite/123/456/789.jpg
-							//$this->loadTile($loadfile,$access_token);
-							
-							if(!file_exists("cache/$loadfile")){
-								unset($thistile);
-								$uid = uniqid();
-								$thistile['uid']=$uid;
-								$thistile['url']=$url;
-								$thistile['location']=$loadfile;
-								$batchtiles[]=$thistile;
-								//echo "file doesn't exist<br>";
-							}else{
-								//echo "file exists.<br>";
-							}
-							
-							if(count($batchtiles)>=50){
-								$this->batchDownloadtiles($batchtiles);
-								$batchtiles=array();
-							}
-
-						}
-
-						if(count($batchtiles)>0){
-							$this->batchDownloadtiles($batchtiles);
-							$batchtiles=array();
-						}
-
-						$jsontiles=array();
-						$tilecount=0;
-						foreach($alltiles as $oldtile){
-
-							$tileparts = explode("/",$oldtile);
-							$z = $tileparts[0];
-							$x = $tileparts[1];
-							$y = $tileparts[2];
-
-							$newtile = "tiles/$z"."_".$x."_"."$y.png";
-							
-							if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm"){
-								//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
-								$filetype="png";
-								$loadfile="$layer/$z/$x/$y.$filetype";
-								
-							}elseif($layer=="mapwarper" || $layer=="strabomymaps"){
-								//http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
-								//http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/15/7493/12572.png strabomymaps
-								$filetype="png";
-								$loadfile="$layer/$id/$z/$x/$y.$filetype";
-								if($id=="") $this->doDie("ID not provided.");
-								
-							}elseif($layer=="mapboxstyles"){
-								//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
-								$filetype="";
-								$loadfile="$layer/$username/$id/$z/$x/$y";
-								if($id=="") $this->doDie("ID not provided.");
-								if($username=="") $this->doDie("Username not provided.");
-								if($access_token=="") $this->doDie("Access token not provided.");
-								
-							}
-							
-							exec("ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile");
-							
-							$jsontiles[]=$newtile;
-							$tilecount++;
-						}
 
-						//exit();
-						
-						//Make details.json
-						$details=array();
-						$details['layer']=$layer;
-						$details['extent']=$extent;
-						$details['zoom']=$zoom;
-						$details['filetype']=$filetype;
-						$details['tile_count']=$tilecount;
-						$details['tiles']=$jsontiles;
-						$details=json_encode($details,JSON_PRETTY_PRINT);
 
-						file_put_contents("ziptemp/$zipdir/$uid/details.json",$details);
 
-						exec("cd ziptemp/$zipdir; zip -r tilecache.zip $uid",$results);
 
-						header("Content-type: application/zip"); 
-						header('Content-Length: ' . filesize("ziptemp/$zipdir/$uid.zip"));
-						header("Content-Disposition: attachment; filename=$uid.zip"); 
-						header("Pragma: no-cache"); 
-						header("Expires: 0"); 
-						readfile("ziptemp/$zipdir/$uid.zip");
 
-						exec("rm -r ziptemp/$zipdir");
 
-					}else{
-						http_response_code(404);
-						$out['message'] = "Invalid zoom ($zoom) provided. Maximum zoom for layer $layer is $maxzoom.";
-						header('Content-Type: application/json');
-						echo json_encode($out);
-					}
-				}else{
-					http_response_code(404);
-					$out['message'] =  "Invalid zoom ($zoom) provided.";
-					header('Content-Type: application/json');
-					echo json_encode($out);
-				}
-			}else{
-				http_response_code(404);
-				$out['message'] =  "Invalid extent ($extent) provided.";
-				header('Content-Type: application/json');
-				echo json_encode($out);
-			}
-		}else{
-			http_response_code(404);
-			$message = "Layer $layer is not valid. Valid layers are: ";
-			$vadelim="";
-			foreach($this->valid_layers as $va){
-				$message .= $vadelim.$va;$vadelim=", ";
-			}
-			$message .= ".";
-			$out['message'] =  $message;
-			header('Content-Type: application/json');
-			echo json_encode($out);
-		}
 
-	}
 
 
 
@@ -1941,196 +1712,6 @@ class StraboTileClass
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	public function olddownloadZip($layer,$extent,$zoom,$id,$access_token,$username){
-
-		//check layer
-		if(in_array($layer,$this->valid_layers)){
-			if($this->checkExtent($extent)){
-			
-				switch ($layer) {
-					case "mapbox.satellite":
-						$maxzoom = 19;
-						break;
-					case "mapbox.outdoors":
-						$maxzoom = 28;
-						break;
-					case "openstreetmaps":
-						$maxzoom = 16;
-						break;
-					default:
-						$maxzoom = 16;
-				}
-			
-				if(is_numeric($zoom) && $zoom > -1){				
-					if($zoom <= $maxzoom){
-					
-						//everything checks out. Create zip file to download.
-						//first, gather tile ids
-						$alltiles=[];
-					
-						$outercount = 0;
-						
-						$outertiles = $this->getOuterZooms($extent, $zoom);
-						foreach($outertiles as $tileId){
-							if(!in_array($tileId, $alltiles)){
-								array_push($alltiles,$tileId);
-								$outercount ++;
-							}
-							if($outercount>3000){
-								$this->doDie("Zoom Level is too large.");
-
-							}
-						}
-
-						$zoomleveltiles = $this->getTileIds($extent, $zoom);
-						foreach($zoomleveltiles as $tileId){
-							if(!in_array($tileId, $alltiles)){
-								array_push($alltiles,$tileId);
-							}
-						}
-					
-						//check for valid layer here
-						if($layer=="mapwarper"){
-							if($id=="") $this->doDie("ID not provided.");
-							$url = "https://www.strabospot.org/mwproxy/$id/0/0/0.png";
-							if(!$this->checkLink($url)) $this->doDie("Invalid Map Specified");
-						}elseif($layer=="mapboxstyles"){
-							if($username=="") $this->doDie("Username not provided.");
-							if($access_token=="") $this->doDie("Access token not provided.");
-							//https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
-							$url = "https://api.mapbox.com/styles/v1/$username/$id/tiles/256/0/0/0?access_token=$access_token";
-							if(!$this->checkLink($url)) $this->doDie("Invalid Map Specified");
-						}elseif($layer=="strabomymaps"){
-							if($id=="") $this->doDie("ID not provided.");
-							$url="https://strabospot.org/geotiff/tiles/$id/0/0/0.png";
-							if(!$this->checkLink($url)) $this->doDie("Invalid Map Specified");
-						}
-
-						$zipdir = rand(111111111,999999999);
-						mkdir("ziptemp/$zipdir");
-						mkdir("ziptemp/$zipdir/tilecache");
-						mkdir("ziptemp/$zipdir/tilecache/tiles");
-						//mkdir("ziptemp/$zipdir/tilecache/tiles/$layer");
-
-						$jsontiles=array();
-						$tilecount=0;
-						foreach($alltiles as $oldtile){
-
-							$tileparts = explode("/",$oldtile);
-							$z = $tileparts[0];
-							$x = $tileparts[1];
-							$y = $tileparts[2];
-
-							$newtile = "tiles/$z"."_".$x."_"."$y.png";
-							
-							if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm"){
-								//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
-								$filetype="png";
-								$loadfile="$layer/$z/$x/$y.$filetype";
-								
-							}elseif($layer=="mapwarper" || $layer=="strabomymaps"){
-								//http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
-								//http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/15/7493/12572.png strabomymaps
-								$filetype="png";
-								$loadfile="$layer/$id/$z/$x/$y.$filetype";
-								if($id=="") $this->doDie("ID not provided.");
-								
-							}elseif($layer=="mapboxstyles"){
-								//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
-								$filetype="";
-								$loadfile="$layer/$username/$id/$z/$x/$y";
-								if($id=="") $this->doDie("ID not provided.");
-								if($username=="") $this->doDie("Username not provided.");
-								if($access_token=="") $this->doDie("Access token not provided.");
-								
-							}
-
-							//loadTile($dirs,$access_token)  dirs looks like: mapbox.satellite/123/456/789.jpg
-							$this->loadTile($loadfile,$access_token);
-							
-							//echo "$newtile<br>";
-							
-							//echo "ln cache/$loadfile ziptemp/$zipdir/tilecache/$newtile";exit();
-							
-							exec("ln cache/$loadfile ziptemp/$zipdir/tilecache/$newtile");
-							
-							$jsontiles[]=$newtile;
-							$tilecount++;
-						}
-
-						//exit();
-						
-						//Make details.json
-						$details=array();
-						$details['layer']=$layer;
-						$details['extent']=$extent;
-						$details['zoom']=$zoom;
-						$details['filetype']=$filetype;
-						$details['tile_count']=$tilecount;
-						$details['tiles']=$jsontiles;
-						$details=json_encode($details,JSON_PRETTY_PRINT);
-
-						file_put_contents("ziptemp/$zipdir/tilecache/details.json",$details);
-
-						exec("cd ziptemp/$zipdir; zip -r tilecache.zip tilecache",$results);
-
-						header("Content-type: application/zip"); 
-						header('Content-Length: ' . filesize("ziptemp/$zipdir/tilecache.zip"));
-						header("Content-Disposition: attachment; filename=tilecache.zip"); 
-						header("Pragma: no-cache"); 
-						header("Expires: 0"); 
-						readfile("ziptemp/$zipdir/tilecache.zip");
-
-						exec("rm -r ziptemp/$zipdir");
-
-					}else{
-						http_response_code(404);
-						$out['message'] = "Invalid zoom ($zoom) provided. Maximum zoom for layer $layer is $maxzoom.";
-						header('Content-Type: application/json');
-						echo json_encode($out);
-					}
-				}else{
-					http_response_code(404);
-					$out['message'] =  "Invalid zoom ($zoom) provided.";
-					header('Content-Type: application/json');
-					echo json_encode($out);
-				}
-			}else{
-				http_response_code(404);
-				$out['message'] =  "Invalid extent ($extent) provided.";
-				header('Content-Type: application/json');
-				echo json_encode($out);
-			}
-		}else{
-			http_response_code(404);
-			$message = "Layer $layer is not valid. Valid layers are: ";
-			$vadelim="";
-			foreach($this->valid_layers as $va){
-				$message .= $vadelim.$va;$vadelim=", ";
-			}
-			$message .= ".";
-			$out['message'] =  $message;
-			header('Content-Type: application/json');
-			echo json_encode($out);
-		}
-
-
-	}
 
 
 

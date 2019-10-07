@@ -1,6 +1,6 @@
-ziptemp/*
-cache/*
 config.inc.php
+cache/
+ziptemp/
 map.html
 test.php
-
+Classes/bkupStraboTileClass10032018.php
