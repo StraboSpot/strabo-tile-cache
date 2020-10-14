@@ -510,9 +510,18 @@ class StraboTileClass
 				
 				}else{
 				
-					if($dir1=="mapbox.satellite" || $dir1=="mapbox.outdoors"){
+					if($dir1=="mapbox.satellite"){
 						$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
 						$url = "http://api.tiles.mapbox.com/v4/$dir1/$dir2/$dir3/$filename?access_token=$access_token";
+					}elseif($dir1=="mapbox.outdoors"){
+						$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
+						$usefile = str_replace(".png","",$filename);
+						
+						//https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/13/1291/2990?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+						
+						$url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/$dir2/$dir3/$usefile?access_token=$access_token";
+						
+						//$url = "http://api.tiles.mapbox.com/v4/$dir1/$dir2/$dir3/$filename?access_token=$access_token";
 					}elseif($dir1=="osm"){
 						$url = "https://".$this->osmserver.".tile.openstreetmap.org/$dir2/$dir3/$filename";
 						$this->rollOSMServer();
