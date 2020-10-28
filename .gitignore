@@ -6,4 +6,8 @@ test.php
 Classes/bkupStraboTileClass10032018.php
 backups/
 phppgadmin/
-
+.DS_Store
+cache/
+ziptemp/
+cache
+ziptemp

@@ -54,7 +54,9 @@ $db->query("
 
 //echo "/usr/bin/php cmdlinezip.php $uid $layer $extent $zoom $id $access_token $username  &>/dev/null &";exit();
 
-exec("/usr/bin/php cmdlinezip.php $uid $layer $extent $zoom $id $access_token $username  &>/dev/null &",$out);
+//exec("/usr/bin/php cmdlinezip.php $uid $layer $extent $zoom $id $access_token $username  &>/dev/null &",$out);
+
+exec("/usr/bin/php cmdlinezip.php $uid $layer $extent $zoom $id $access_token $username  > /dev/null &",$out);
 
 //$tile->dumpVar($out);exit();
 

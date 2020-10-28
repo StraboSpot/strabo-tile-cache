@@ -1161,12 +1161,17 @@ class StraboTileClass
 									if(!file_exists("cache/$layer/$username/$id/$z/$x")){mkdir("cache/$layer/$username/$id/$z/$x");}
 								}
 
-								if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors"){
+								if($layer=="mapbox.satellite"){
 									//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
 									$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
 									$url = "http://api.tiles.mapbox.com/v4/$layer/$z/$x/$y.$filetype?access_token=$access_token";
+								}elseif($layer=="mapbox.outdoors"){
+									$filetype="png";
+									$loadfile="$layer/$z/$x/$y.$filetype";
+									$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
+									$url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/$z/$x/$y?access_token=$access_token";
 								}elseif($layer=="osm"){
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
@@ -1285,6 +1290,10 @@ class StraboTileClass
 									}
 								}
 
+								//exec("ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile");
+								
+								//echo "ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile\n";
+								
 								exec("ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile");
 							
 								$jsontiles[]=$newtile;
@@ -1727,7 +1736,7 @@ class StraboTileClass
 
 
 
-	public function countZip($extent,$zoom,$filetype){
+	public function countZip($extent,$zoom,$filetype = "jpg"){
 		if($filetype==""){
 			$filetype="jpg";
 		}
