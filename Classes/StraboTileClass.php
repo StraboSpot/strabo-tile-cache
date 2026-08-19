@@ -14,20 +14,20 @@
 			/*
 			
 			osm https://tile.openstreetmap.org/15/7490/12570.png
-			custom mapbox style https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+			custom mapbox style https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=<mapbox_access_token>
 			mapwarper https://www.strabospot.org/mwproxy/32790/16/14986/25147.png
 			https://strabospot.org/geotiff/tiles/5b75967d71bc0/15/7493/12572.png strabomymaps
 
-			mapbox classic https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+			mapbox classic https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=<mapbox_access_token>
 
 			
-			mapbox satellite http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
-			mapbox topo http://devtiles.strabospot.org/v4/mapbox.outdoors/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+			mapbox satellite http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=<mapbox_access_token>
+			mapbox topo http://devtiles.strabospot.org/v4/mapbox.outdoors/16/14989/25148.png?access_token=<mapbox_access_token>
 
 			new urls:
 			
 			http://devtiles.strabospot.org/v4/osm/15/7490/12570.png
-			http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+			http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=<mapbox_access_token>
 			http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
 			http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/16/14986/25147.png strabomymaps
 			
@@ -41,7 +41,7 @@
 			strabomymaps 5		(4)	id
 
 			if($dir1=="mapbox.satellite" || $dir1=="mapbox.outdoors" || $dir1=="osm"){
-				//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+				//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=<mapbox_access_token>
 				$filename = $parts[3];
 				if(!is_numeric($dir2)){exit("Invalid Request");}
 				if(!is_numeric($dir3)){exit("Invalid Request");}
@@ -56,7 +56,7 @@
 				if(!is_numeric($dir4)){exit("Invalid Request");}
 				$lookfile="cache/$dir1/$dir2/$dir3/$dir4/$filename";
 			}elseif($dir1=="mapboxstyles"){
-				//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+				//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=<mapbox_access_token>
 				$dir4 = $parts[3];
 				$dir5 = $parts[4];
 				if(!file_exists("cache/$dir1/$dir2/$dir3/$dir4")){mkdir("cache/$dir1/$dir2/$dir3/$dir4");}
@@ -76,6 +76,7 @@
 * tile gathering/download.
 */
 require 'vendor/autoload.php';
+include_once(__DIR__."/../config.inc.php");
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Promise;
 		
@@ -88,8 +89,10 @@ class StraboTileClass
  	* Constructor
  	*/
  	public function StraboTileClass(){
+ 		global $mapbox_access_token;
  		$this->db=$db;
- 		$this->valid_layers = array("mapbox.satellite","mapbox.outdoors","mapboxstyles","mapboxclassic","osm","mapwarper","strabomymaps","macrostrat");
+ 		$this->mapbox_access_token = $mapbox_access_token;
+ 		$this->valid_layers = array("mapbox.satellite","mapbox.outdoors","mapboxstyles","mapboxclassic","osm","mapwarper","strabomymaps","macrostrat","usgs.hillshade");
  		$this->osmserver="a";
  	
 
@@ -182,7 +185,7 @@ class StraboTileClass
 
 		/* tiles look like:
 		[uid] => 5b7f068e79fd3
-		[url] => http://api.tiles.mapbox.com/v4/mapbox.satellite/3/1/3.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+		[url] => http://api.tiles.mapbox.com/v4/mapbox.satellite/3/1/3.png?access_token=<mapbox_access_token>
 		[location] => mapbox.satellite/3/1/3.png
 		*/
 
@@ -264,6 +267,9 @@ class StraboTileClass
 			if($dir1=="mapbox.satellite" || $dir1=="mapbox.outdoors" || $dir1=="osm" || $dir1=="macrostrat"){
 				$filename = $parts[3];
 				$lookfile="cache/$dir1/$dir2/$dir3/$filename";
+			}elseif($dir1=="usgs.hillshade"){
+				$filename = $parts[3];
+				$lookfile="cache/$dir1/$dir2/$dir3/$filename";
 			}elseif($dir1=="mapwarper" || $dir1=="strabomymaps" || $dir1=="mapboxclassic"){
 				$dir4 = $parts[3];
 				if(!file_exists("cache/$dir1/$dir2/$dir3/$dir4")){mkdir("cache/$dir1/$dir2/$dir3/$dir4");}
@@ -314,7 +320,7 @@ class StraboTileClass
 		
 		if($access_token==""){
 			//default
-			//$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
+			//$access_token=$this->mapbox_access_token;
 		}
 		
 		$parts=explode("/",$dirs);
@@ -329,7 +335,7 @@ class StraboTileClass
 			if(!file_exists("cache/$dir1/$dir2")){mkdir("cache/$dir1/$dir2");}
 			if(!file_exists("cache/$dir1/$dir2/$dir3")){mkdir("cache/$dir1/$dir2/$dir3");}
 
-			if($dir1=="mapbox.satellite" || $dir1=="mapbox.outdoors" || $dir1=="osm" || $dir1=="macrostrat"){
+			if($dir1=="mapbox.satellite" || $dir1=="mapbox.outdoors" || $dir1=="osm" || $dir1=="macrostrat" || $dir1=="usgs.hillshade" ){
 				$filename = $parts[3];
 				if(!is_numeric($dir2)){exit("Invalid Request");}
 				if(!is_numeric($dir3)){exit("Invalid Request");}
@@ -360,6 +366,8 @@ class StraboTileClass
 			
 			if(!file_exists( $lookfile )){
 		
+				
+				
 				if($dir1=="macrostrat"){
 				
 					//echo "different path here for macrostrat file doesn't exist";
@@ -386,8 +394,8 @@ class StraboTileClass
 
 							//big tile doesn't exist yet, so let's get it first
 							$url = "https://macrostrat.org/api/v2/maps/burwell/emphasized/$zoom/$x/$y/tile.png";
-							echo "url: $url";exit();
-							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA";
+							//echo "url: $url";exit();
+							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=<mapbox_access_token>";
 							$ch = curl_init();
 							curl_setopt($ch, CURLOPT_URL, $url);
 							curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
@@ -467,7 +475,7 @@ class StraboTileClass
 
 							//big tile doesn't exist yet, so let's get it first
 							$url = "https://macrostrat.org/api/v2/maps/burwell/emphasized/$zoom/$x/$y/tile.png";
-							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA";
+							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=<mapbox_access_token>";
 							$ch = curl_init();
 							curl_setopt($ch, CURLOPT_URL, $url);
 							curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
@@ -511,13 +519,16 @@ class StraboTileClass
 				}else{
 				
 					if($dir1=="mapbox.satellite"){
-						$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
-						$url = "http://api.tiles.mapbox.com/v4/$dir1/$dir2/$dir3/$filename?access_token=$access_token";
+						$access_token=$this->mapbox_access_token;
+						//$url = "https://api.tiles.mapbox.com/v4/$dir1/$dir2/$dir3/$filename?access_token=$access_token";
+						$usefile = str_replace(".png","",$filename);
+						$url = "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/$dir2/$dir3/$usefile?access_token=$access_token";
+						//echo $url;exit();
 					}elseif($dir1=="mapbox.outdoors"){
-						$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
+						$access_token=$this->mapbox_access_token;
 						$usefile = str_replace(".png","",$filename);
 						
-						//https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/13/1291/2990?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+						//https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/13/1291/2990?access_token=<mapbox_access_token>
 						
 						$url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/$dir2/$dir3/$usefile?access_token=$access_token";
 						
@@ -526,12 +537,22 @@ class StraboTileClass
 						$url = "https://".$this->osmserver.".tile.openstreetmap.org/$dir2/$dir3/$filename";
 						$this->rollOSMServer();
 						//echo "$url<br>\n";
+					}elseif($dir1=="usgs.hillshade"){
+						
+						
+						
+						//https://tiles.strabospot.org/v5/usgs.hillshade/10/210/389.png
+						//$url = "https://".$this->osmserver.".tile.openstreetmap.org/$dir2/$dir3/$filename";
+						$y = str_replace(".png","",$filename);
+						//$url = "https://tiles.strabospot.org/v5/usgs.hillshade/$dir2/$dir3/$filename";
+						$url = "https://strabospot.org/cgi-bin/mapserv?map=/var/www/hillshade.map&layer=geotifflayer&mode=tile&tile=$dir3+$filename+$dir2";
+						//echo "$url<br>\n";exit();
 					}elseif($dir1=="mapwarper"){
 						$url = "https://www.strabospot.org/mwproxy/$dir2/$dir3/$dir4/$filename";
 					}elseif($dir1=="mapboxstyles"){
 						$url = "https://api.mapbox.com/styles/v1/$dir2/$dir3/tiles/256/$dir4/$dir5/$filename?access_token=$access_token";
 					}elseif($dir1=="mapboxclassic"){
-						https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+						//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=<mapbox_access_token>
 						$url = "https://api.mapbox.com/v4/$dir2/$dir3/$dir4/$dir5/$filename?access_token=$access_token";
 					}elseif($dir1=="strabomymaps"){
 						$url="https://strabospot.org/geotiff/tiles/$dir2/$dir3/$dir4/$filename";
@@ -543,10 +564,11 @@ class StraboTileClass
 				
 					$ch = curl_init();
 					curl_setopt($ch, CURLOPT_URL, $url);
-					curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
+					//curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
+					curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone14,6; U; CPU iPhone OS 15_4 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Mobile/19E241 Safari/602.1');
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-					curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+					curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 					$data = curl_exec($ch);
 					$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 					$fsize=(curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD));
@@ -1083,7 +1105,7 @@ class StraboTileClass
 									array_push($alltiles,$tileId);
 									$outercount ++;
 								}
-								if($outercount>3000){
+								if($outercount>6000){ //3000
 									$this->doDie("Zoom Level is too large.");
 
 								}
@@ -1104,13 +1126,13 @@ class StraboTileClass
 							}elseif($layer=="mapboxstyles"){
 								if($username=="") $this->doDie("Username not provided.");
 								if($access_token=="") $this->dbDie($uid,"Access token not provided.");
-								//https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+								//https://api.mapbox.com/styles/v1/jasonash/cjl3xdv9h22j12tqfmyce22zq/tiles/256/16/14988/25147?access_token=<mapbox_access_token>
 								$url = "https://api.mapbox.com/styles/v1/$username/$id/tiles/256/0/0/0?access_token=$access_token";
 								if(!$this->checkLink($url)) $this->dbDie($uid,"Invalid Map Specified");
 							}elseif($layer=="mapboxclassic"){
 								if($id=="") $this->doDie("ID not provided.");
 								if($access_token=="") $this->dbDie($uid,"Access token not provided.");
-								//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+								//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=<mapbox_access_token>
 								$url = "https://api.mapbox.com/v4/$id/0/0/0.png?access_token=$access_token";
 								echo $url;
 								if(!$this->checkLink($url)) $this->dbDie($uid,"Invalid Map Specified: $url");
@@ -1144,7 +1166,7 @@ class StraboTileClass
 
 								$newtile = "tiles/$z"."_".$x."_"."$y.png";
 							
-								if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm" || $layer=="macrostrat"){
+								if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm" || $layer=="macrostrat" || $layer=="usgs.hillshade"){
 									if(!file_exists("cache/$layer")){mkdir("cache/$layer");}
 									if(!file_exists("cache/$layer/$z")){mkdir("cache/$layer/$z");}
 									if(!file_exists("cache/$layer/$z/$x")){mkdir("cache/$layer/$z/$x");}
@@ -1162,21 +1184,26 @@ class StraboTileClass
 								}
 
 								if($layer=="mapbox.satellite"){
-									//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+									//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=<mapbox_access_token>
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
-									$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
-									$url = "http://api.tiles.mapbox.com/v4/$layer/$z/$x/$y.$filetype?access_token=$access_token";
+									$access_token=$this->mapbox_access_token;
+									//$url = "http://api.tiles.mapbox.com/v4/$layer/$z/$x/$y.$filetype?access_token=$access_token";
+									$url = "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/$z/$x/$y?access_token=$access_token";
 								}elseif($layer=="mapbox.outdoors"){
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
-									$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
+									$access_token=$this->mapbox_access_token;
 									$url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/$z/$x/$y?access_token=$access_token";
 								}elseif($layer=="osm"){
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
 									$url = "https://".$this->osmserver.".tile.openstreetmap.org/$z/$x/$y.$filetype";
 									$this->rollOSMServer();
+								}elseif($layer=="usgs.hillshade"){
+									$filetype="png";
+									$loadfile="$layer/$z/$x/$y.$filetype";
+									$url = "https://strabospot.org/cgi-bin/mapserv?map=/var/www/hillshade.map&layer=geotifflayer&mode=tile&tile=$x+$y+$z";
 								}elseif($layer=="mapwarper"){
 									$filetype="png";
 									$loadfile="$layer/$id/$z/$x/$y.$filetype";
@@ -1190,7 +1217,7 @@ class StraboTileClass
 									if($id=="") $this->dbDie($uid,"ID not provided.");
 									$url="https://strabospot.org/geotiff/tiles/$id/$z/$x/$y.$filetype";
 								}elseif($layer=="mapboxclassic"){
-									//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+									//https://api.mapbox.com/v4/jasonash.f43efc58/14/3747/6286.png?access_token=<mapbox_access_token>
 									$filetype="png";
 									$loadfile="$layer/$id/$z/$x/$y.$filetype";
 									if($id=="") $this->dbDie($uid,"ID not provided.");
@@ -1202,7 +1229,7 @@ class StraboTileClass
 									$loadfile="$layer/$z/$x/$y.$filetype";
 									$url="http://macrotiles.strabospot.org/v5/macrostrat/$z/$x/$y.$filetype";
 								}elseif($layer=="mapboxstyles"){
-									//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+									//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=<mapbox_access_token>
 									$filetype="";
 									$loadfile="$layer/$username/$id/$z/$x/$y";
 									if($id=="") $this->dbDie($uid,"ID not provided.");
@@ -1261,8 +1288,8 @@ class StraboTileClass
 
 								$newtile = "tiles/$z"."_".$x."_"."$y.png";
 							
-								if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm" || $layer=="macrostrat"){
-									//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg
+								if($layer=="mapbox.satellite" || $layer=="mapbox.outdoors" || $layer=="osm" || $layer=="macrostrat" || $layer=="usgs.hillshade"){
+									//http://devtiles.strabospot.org/v4/mapbox.satellite/16/14989/25148.png?access_token=<mapbox_access_token>
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
 								
@@ -1276,7 +1303,7 @@ class StraboTileClass
 									}
 								
 								}elseif($layer=="mapboxstyles"){
-									//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=pk.eyJ1IjoiamFzb25hc2giLCJhIjoiY2l2dTUycmNyMDBrZjJ5bzBhaHgxaGQ1diJ9.O2UUsedIcg1U7w473A5UHA
+									//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=<mapbox_access_token>
 									$filetype="";
 									$loadfile="$layer/$username/$id/$z/$x/$y";
 									if($id==""){
@@ -1538,16 +1565,73 @@ class StraboTileClass
 
 
 
+	public function countZip($extent,$zoom){
 
+		if($this->checkExtent($extent)){
 
+			$maxzoom = 30;
 
+			if(is_numeric($zoom) && $zoom > -1){				
+				if($zoom <= $maxzoom){
 
+						$alltiles=[];
+				
+						$outercount = 0;
+					
+						
+						
+						//Get all tiles above zoom
+						
+						
+						$outertiles = $this->getOuterZooms($extent, $zoom);
+						foreach($outertiles as $tileId){
+							if(!in_array($tileId, $alltiles)){
+								array_push($alltiles,$tileId);
+								$outercount ++;
+							}
+							if($outercount>6000){ //3000
+								$this->doDie("Zoom Level is too large.");
 
+							}
+						}
+						
+						
+						
+						//Get zoom level tiles
+						if($zoom > 0){
+							$zoomleveltiles = $this->getTileIds($extent, $zoom);
+							foreach($zoomleveltiles as $tileId){
+								if(!in_array($tileId, $alltiles)){
+									array_push($alltiles,$tileId);
+								}
+							}
+						}
+						
+					
+						//$this->dumpVar($alltiles);exit();
+						
+						//$totalcount=count($alltiles);
+						
+						//echo $totalcount;
+						
+						$out['count']=count($alltiles);
+						header('Content-Type: application/json');
+						echo json_encode($out);
 
+				}else{
 
+					$this->dbDie($uid,"Error: Invalid zoom ($zoom) provided. Maximum zoom is $maxzoom.");
+				}
+			}else{
 
+				$this->dbDie($uid,"Error: Invalid zoom ($zoom) provided.");
+			}
+		}else{
 
+			$this->dbDie($uid,"Error: Invalid extent ($extent) provided.");
+		}
 
+	}
 
 
 
@@ -1736,7 +1820,16 @@ class StraboTileClass
 
 
 
-	public function countZip($extent,$zoom,$filetype = "jpg"){
+
+
+
+
+
+
+
+
+
+	public function oldcountZip20251016($extent,$zoom,$filetype = "jpg"){
 		if($filetype==""){
 			$filetype="jpg";
 		}
@@ -1773,10 +1866,12 @@ class StraboTileClass
 								array_push($alltiles,$tileId);
 								$outercount ++;
 							}
-							if($outercount>3000){
-								$this->doDie("Zoom Level is too large.");
+							if($outercount>6000){ //3000
+								$this->doDie("Zoom Level is too large. $outercount");
 							}
 						}
+						
+						//echo "$outercount";exit();
 						
 						//echo "countalltiles: ".count($alltiles)."<br>";//exit();
 
@@ -1789,8 +1884,9 @@ class StraboTileClass
 						}
 					
 						$out['count']=count($alltiles);
-						header('Content-Type: application/json');
+						//header('Content-Type: application/json');
 						echo json_encode($out);
+						echo json_encode($alltiles);
 
 					}else{
 						http_response_code(404);
@@ -1820,6 +1916,12 @@ class StraboTileClass
 
 	}
 	
+
+
+
+
+
+
 
 	public function devcountZip($layer,$extent,$zoom,$filetype){
 		if($filetype==""){
@@ -1859,7 +1961,7 @@ class StraboTileClass
 									array_push($alltiles,$tileId);
 									$outercount ++;
 								}
-								if($outercount>3000){
+								if($outercount>6000){ //3000
 									$this->doDie("Zoom Level is too Large.");
 								}
 							}
@@ -1924,10 +2026,117 @@ class StraboTileClass
 
 	// borrowed from http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
     public function lat2tile($lat, $zoom) {
+		$ytile = (int) floor((1 - log(tan(deg2rad($lat)) + 1 / cos(deg2rad($lat))) / pi()) / 2 * (1 << $zoom));
+	
+
+		if ($ytile < 0) {
+			$ytile = 0;
+		}
+		
+		if ($ytile >= (1 << $zoom)) {
+			$ytile = (1 << $zoom) - 1;
+		}
+	
+		
+		//echo "zoom: $zoom<br>lat: $lat<br>ytile: $ytile"; exit();
+		
+		return $ytile; 
+    }
+    
+    
+    /*
+
+
+    public function lat2tile($lat, $zoom) {
 		return (floor(
 			(1 - log(tan($lat * pi() / 180) + 1 / cos($lat * pi() / 180)) / pi()) / 2 * pow(2,$zoom))
 		);    
     }
+
+
+		n = 2 ^ zoom
+		xtile = n * ((lon_deg + 180) / 360)
+		ytile = n * (1 - (log(tan(lat_rad) + sec(lat_rad)) / π)) / 2
+
+
+    public function foolat2tile($lat, $zoom) {
+
+		$lat = -80;
+		$zoom = 1;
+		
+		echo "lat: $lat<br>";
+		echo "zoom: $zoom<br>";
+		
+		$n = pow(2, $zoom);
+		$lat_rad = deg2rad($lat);
+		$sec = 1 / cos($lat_rad);
+		//echo $lat_rad;
+		
+		$ytile = $n * (1 - (log(tan($lat_rad) + $sec) / pi)) / 2;
+		
+		echo $ytile;
+		
+		
+		
+
+		exit();   
+    }
+
+    public function foolat2tile($lat_deg, $zoom) {
+
+		//echo $lat_deg;exit(); //89 = 1
+		$lat_deg = -89;
+		$lon_deg = -179;
+		$zoom = 2;
+		
+		echo "lat: " . $lat_deg . " zoom: " . $zoom . "<br><br>";
+
+		
+
+		
+		$lat_rad = deg2rad($lat_deg);
+		$n = pow(2, $zoom);
+		
+		$xtile = $n * (($lon_deg + 180) / 360);
+		$ytile = $n * (1 - (log(tan($lat_rad) + 1 / cos($lat_rad)) / pi())) / 2;
+		
+		echo "X Tile: " . $xtile . "<br>";
+		echo "Y Tile: " . $ytile . "<br>";
+
+
+
+		
+		exit();
+		
+		return $ytile;  
+    }
+
+    */
+    
+    public function foolat2tile($lat, $zoom) {
+
+		
+		$ytile = (int) floor((1 - log(tan(deg2rad($lat)) + 1 / cos(deg2rad($lat))) / pi()) / 2 * (1 << $zoom));
+	
+
+		if ($ytile < 0) {
+			$ytile = 0;
+		}
+		
+		if ($ytile >= (1 << $zoom)) {
+			$ytile = (1 << $zoom) - 1;
+		}
+	
+		
+		//echo "zoom: $zoom<br>lat: $lat<br>ytile: $ytile"; exit();
+		
+		return $ytile;
+
+    }
+    
+    
+    
+    
 
 	// borrowed from http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
     public function long2tile($lon, $zoom) {
@@ -1971,7 +2180,117 @@ class StraboTileClass
       return (180 / pi() * atan(0.5 * (exp($n) - exp(-$n))));
     }
 
+    //Test function from ChatGPT
+    public function latLonToTile(float $lat, float $lon, int $z): array {
+		// Clamp latitude to Web Mercator limits to avoid infinity at the poles
+		$maxLat = 85.05112878;
+		if ($lat > $maxLat)  $lat = $maxLat;
+		if ($lat < -$maxLat) $lat = -$maxLat;
+	
+		// Normalize longitude to [0, 360) then scale to [0, 1)
+		$lon = fmod($lon + 180.0, 360.0);
+		if ($lon < 0) $lon += 360.0;
+	
+		$n = 1 << $z; // 2^z
+		$x = (int) floor($n * ($lon / 360.0));
+	
+		$latRad = deg2rad($lat);
+		$y = (int) floor(
+			$n * (1.0 - (log(tan($latRad) + 1.0 / cos($latRad)) / M_PI)) / 2.0
+		);
+	
+		// Guard against rounding hitting n at the international date line
+		if ($x >= $n) $x = $n - 1;
+		if ($y >= $n) $y = $n - 1;
+		if ($x < 0)   $x = 0;
+		if ($y < 0)   $y = 0;
+	
+		return ['x' => $x, 'y' => $y, 'z' => $z];
+	}
+    
     // returns an array of tileIds from two corners of a bounding box
+    public function getTileIds($bbox, $zoom) { //bbox in form of lower_left_long, lower_left_lat, upper_right_long, upper_right_lat
+      
+		$parts = explode(",",$bbox);
+		$bl_long = trim($parts[0]);
+		$bl_lat = trim($parts[1]);
+		$ur_long = trim($parts[2]);
+		$ur_lat = trim($parts[3]);
+		
+		if($bl_long == -180) $bl_long = -179.9;
+		if($bl_lat == -90) $bl_lat = -89.9;
+		if($ur_long == 180) $ur_long = 179.9;
+		if($ur_lat == 90) $ur_lat = 89.9;
+
+		$x = $this->numberRangeArray($this->long2tile($bl_long, $zoom), $this->long2tile($ur_long, $zoom));
+		$y = $this->numberRangeArray($this->lat2tile($bl_lat, $zoom), $this->lat2tile($ur_lat, $zoom));
+
+		$cartesianProduct = [];
+
+		foreach($x as $valuex){
+			foreach($y as $valuey){
+				if($valuey >= 0){
+					array_push($cartesianProduct, $zoom."/".$valuex."/".$valuey);
+				}
+			}
+		}
+
+		return $cartesianProduct;
+
+    }
+    
+    public function scountGetTileIds($bbox, $zoom) { //bbox in form of lower_left_long, lower_left_lat, upper_right_long, upper_right_lat
+      
+		//echo $zoom;exit();
+		
+		$parts = explode(",",$bbox);
+		$bl_long = trim($parts[0]);
+		$bl_lat = trim($parts[1]);
+		$ur_long = trim($parts[2]);
+		$ur_lat = trim($parts[3]);
+		
+		
+		if($bl_long == -180) $bl_long = -179.9;
+		if($bl_lat == -90) $bl_lat = -89.9;
+		if($ur_long == 180) $ur_long = 179.9;
+		if($ur_lat == 90) $ur_lat = 89.9;
+		
+		//echo "tile for -90: " . $this->foolat2tile(89, 1);exit();
+		
+		$x = $this->numberRangeArray($this->long2tile($bl_long, $zoom), $this->long2tile($ur_long, $zoom));
+		$y = $this->numberRangeArray($this->foolat2tile($bl_lat, $zoom), $this->foolat2tile($ur_lat, $zoom));
+		
+		//$this->dumpVar($x);$this->dumpVar($y);exit();
+
+		/*
+		if($zoom = 0){
+			$maxy = 0;
+		}elseif($zoom = 1){
+			$maxy = 1;
+		}else{
+			$maxy = ($zoom * $zoom) - 1; 
+		}
+		*/
+		
+		
+		//echo $zoom;exit();
+		
+		$cartesianProduct = [];
+
+		foreach($x as $valuex){
+			foreach($y as $valuey){
+				//if($valuey >= 0 && $valuey < $maxy || 1==1){
+				if($valuey >= 0 ){
+					array_push($cartesianProduct, $zoom."/".$valuex."/".$valuey);
+				}
+			}
+		}
+
+		return $cartesianProduct;
+
+    }
+    
+    /* 20251016
     public function getTileIds($bbox, $zoom) { //bbox in form of lower_left_long, lower_left_lat, upper_right_long, upper_right_lat
       
 		$parts = explode(",",$bbox);
@@ -1994,6 +2313,7 @@ class StraboTileClass
 		return $cartesianProduct;
 
     }
+    */
 
 	public function getOuterZooms($bbox, $currentZoom) {
 

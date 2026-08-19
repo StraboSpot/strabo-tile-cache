@@ -85,7 +85,7 @@ class StraboTileClass
 		
 		if($access_token==""){
 			//default
-			$access_token="pk.eyJ1Ijoic3RyYWJvLWdlb2xvZ3kiLCJhIjoiY2lpYzdhbzEwMDA1ZnZhbTEzcTV3Z3ZnOSJ9.myyChr6lmmHfP8LYwhH5Sg";
+			$access_token="<mapbox_access_token>";
 		}
 		
 		$parts=explode("/",$dirs);

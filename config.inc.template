@@ -13,6 +13,7 @@ $dbusername = "";
 $dbpassword = "";
 $dbname = "";
 $dbhost = "localhost";
+$mapbox_access_token = "";	// Mapbox public (pk.*) token used for mapbox.satellite / mapbox.outdoors requests
 $straboemailaddress = "";
 $straboemailpassword = "";
 $hashval="";
