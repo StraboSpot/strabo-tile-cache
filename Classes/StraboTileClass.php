@@ -214,8 +214,11 @@ class StraboTileClass
 				}
 				
 				if($location != ""){
-					$body = $value['value']->getBody();
-					file_put_contents("cache/".$location,$body);
+					$body = (string) $value['value']->getBody();
+					//WMS servers can return an XML error with HTTP 200; never cache non-image bodies
+					if($this->looksLikeImage($body)){
+						file_put_contents("cache/".$location,$body);
+					}
 				}
 			}
 
@@ -314,6 +317,29 @@ class StraboTileClass
 		return $ctype;
 	}
 
+	public function hillshadeWmsUrl($z,$x,$y){
+		//Direct WMS GetMap against the USGS 3DEP service in EPSG:3857, so the
+		//bbox lines up exactly with the slippy-map tile grid. Replaces the old
+		//mapserv hop through the public host Apache (the WMS cascade the
+		///var/www/hillshade.map file used to do server-side).
+		$w = 20037508.342789244;
+		$ts = (2 * $w) / pow(2, $z);
+		$minx = -$w + ($x * $ts);
+		$maxy = $w - ($y * $ts);
+		$maxx = $minx + $ts;
+		$miny = $maxy - $ts;
+		$bbox = sprintf("%.6f,%.6f,%.6f,%.6f", $minx, $miny, $maxx, $maxy);
+		return "https://elevation.nationalmap.gov/arcgis/services/3DEPElevation/ImageServer/WMSServer?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=3DEPElevation:Hillshade%20Gray&STYLES=&CRS=EPSG:3857&BBOX=$bbox&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=TRUE";
+	}
+
+	public function looksLikeImage($data){
+		if(strlen($data) < 8){return false;}
+		if(substr($data,0,8) == "\x89PNG\r\n\x1a\n"){return true;}	//png
+		if(substr($data,0,3) == "\xFF\xD8\xFF"){return true;}		//jpg
+		if(substr($data,0,4) == "GIF8"){return true;}				//gif
+		return false;
+	}
+
 	public function loadTile($dirs,$access_token){
 
 		//dirs looks like: mapbox.satellite/123/456/789.jpg
@@ -365,9 +391,9 @@ class StraboTileClass
 			//unlink($lookfile);
 			
 			if(!file_exists( $lookfile )){
-		
-				
-				
+
+				$fetchtimeout = 5;
+
 				if($dir1=="macrostrat"){
 				
 					//echo "different path here for macrostrat file doesn't exist";
@@ -538,15 +564,14 @@ class StraboTileClass
 						$this->rollOSMServer();
 						//echo "$url<br>\n";
 					}elseif($dir1=="usgs.hillshade"){
-						
-						
-						
 						//https://tiles.strabospot.org/v5/usgs.hillshade/10/210/389.png
-						//$url = "https://".$this->osmserver.".tile.openstreetmap.org/$dir2/$dir3/$filename";
+						//Fetch straight from the USGS 3DEP WMS. The old URL went to
+						//strabospot.org/cgi-bin/mapserv, which routed back through the
+						//public host Apache and wedged its worker pool (2026-08-18 incident).
 						$y = str_replace(".png","",$filename);
-						//$url = "https://tiles.strabospot.org/v5/usgs.hillshade/$dir2/$dir3/$filename";
-						$url = "https://strabospot.org/cgi-bin/mapserv?map=/var/www/hillshade.map&layer=geotifflayer&mode=tile&tile=$dir3+$filename+$dir2";
-						//echo "$url<br>\n";exit();
+						if(!is_numeric($y)){exit("Invalid Request");}
+						$url = $this->hillshadeWmsUrl($dir2,$dir3,$y);
+						$fetchtimeout = 20; //USGS WMS renders can be slower than plain tile servers
 					}elseif($dir1=="mapwarper"){
 						$url = "https://www.strabospot.org/mwproxy/$dir2/$dir3/$dir4/$filename";
 					}elseif($dir1=="mapboxstyles"){
@@ -568,13 +593,14 @@ class StraboTileClass
 					curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone14,6; U; CPU iPhone OS 15_4 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Mobile/19E241 Safari/602.1');
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-					curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+					curl_setopt($ch, CURLOPT_TIMEOUT, $fetchtimeout);
 					$data = curl_exec($ch);
 					$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 					$fsize=(curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD));
 					curl_close($ch);
-		
-					if($httpcode>=200 && $httpcode<300){
+
+					//WMS servers can return an XML error with HTTP 200; never cache non-image bodies
+					if($httpcode>=200 && $httpcode<300 && $this->looksLikeImage($data)){
 						file_put_contents($lookfile,$data);
 						return "success";
 					}else{
@@ -1203,7 +1229,8 @@ class StraboTileClass
 								}elseif($layer=="usgs.hillshade"){
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
-									$url = "https://strabospot.org/cgi-bin/mapserv?map=/var/www/hillshade.map&layer=geotifflayer&mode=tile&tile=$x+$y+$z";
+									//direct USGS WMS fetch; see hillshadeWmsUrl (old mapserv URL wedged the host Apache)
+									$url = $this->hillshadeWmsUrl($z,$x,$y);
 								}elseif($layer=="mapwarper"){
 									$filetype="png";
 									$loadfile="$layer/$id/$z/$x/$y.$filetype";
