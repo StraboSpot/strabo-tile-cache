@@ -409,7 +409,7 @@ class StraboTileClass
 						if(!is_numeric($y)){exit("Invalid Request");}
 
 						$bigfilename = $y.".png";
-						$lookfile="cache/macrostratbig/$zoom/$x/$filename";
+						$lookfile="cache/macrostratbig/$zoom/$x/$bigfilename";
 
 						if(!file_exists("cache/macrostratbig")){mkdir("cache/macrostratbig");}
 						if(!file_exists("cache/macrostratbig/$zoom")){mkdir("cache/macrostratbig/$zoom");}
@@ -419,24 +419,25 @@ class StraboTileClass
 						if(!file_exists($lookfile)){
 
 							//big tile doesn't exist yet, so let's get it first
-							$url = "https://macrostrat.org/api/v2/maps/burwell/emphasized/$zoom/$x/$y/tile.png";
+							//Macrostrat retired the burwell tile API (it 301s now, and this curl does not follow redirects, so every uncached macrostrat tile died with "Moved Permanently" - 2026-08-24). carto is the direct replacement: identical z/x/y path semantics, same 512px tiles.
+							$url = "https://tiles.macrostrat.org/carto/$zoom/$x/$y.png";
 							//echo "url: $url";exit();
 							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=<mapbox_access_token>";
 							$ch = curl_init();
 							curl_setopt($ch, CURLOPT_URL, $url);
 							curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
 							curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-							curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+							curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 							$data = curl_exec($ch);
 							$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 							$fsize=(curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD));
 							curl_close($ch);
 		
-							if($httpcode>=200 && $httpcode<300){
+							if($httpcode>=200 && $httpcode<300 && $this->looksLikeImage($data)){
 								file_put_contents($lookfile,$data);
 							}else{
-								exit("Error getting big tile from Macrostrat: $data");
+								return "Error getting big tile from Macrostrat: ".substr((string)$data,0,300);
 							}
 						}
 						
@@ -445,19 +446,19 @@ class StraboTileClass
 						$im2 = imagescale($im, 256);
 						if ($im2 !== FALSE) {
 
-							//first, save tile
+							//cache the tile and let showSingleTile serve it from disk. The old code
+							//echoed the PNG inline here and then fell through without returning
+							//"success", so showSingleTile stamped the already-echoed image with
+							//HTTP 404 + application/json on every first-time fetch (2026-08-24).
 							imagepng($im2,"cache/macrostrat/$dir2/$dir3/$filename");
-							
-							//now, show tile
-							header('Content-Type: image/png');
-							imagepng($im2);
-							
 							imagedestroy($im2);
 						}else{
-							exit("Error creating image.");
+							imagedestroy($im);
+							return "Error creating image.";
 						}
 
 						imagedestroy($im);
+						return "success";
 					
 					}else{
 					
@@ -490,7 +491,7 @@ class StraboTileClass
 						}
 
 						$bigfilename = $y.".png";
-						$lookfile="cache/macrostratbig/$zoom/$x/$filename";
+						$lookfile="cache/macrostratbig/$zoom/$x/$bigfilename";
 
 						if(!file_exists("cache/macrostratbig")){mkdir("cache/macrostratbig");}
 						if(!file_exists("cache/macrostratbig/$zoom")){mkdir("cache/macrostratbig/$zoom");}
@@ -500,23 +501,24 @@ class StraboTileClass
 						if(!file_exists($lookfile)){
 
 							//big tile doesn't exist yet, so let's get it first
-							$url = "https://macrostrat.org/api/v2/maps/burwell/emphasized/$zoom/$x/$y/tile.png";
+							//Macrostrat retired the burwell tile API (it 301s now, and this curl does not follow redirects, so every uncached macrostrat tile died with "Moved Permanently" - 2026-08-24). carto is the direct replacement: identical z/x/y path semantics, same 512px tiles.
+							$url = "https://tiles.macrostrat.org/carto/$zoom/$x/$y.png";
 							//$url = "https://api.mapbox.com/styles/v1/jasonash/cjlr2ulls98xv2sp7m8ba02wz/tiles/512/$zoom/$x/$y?access_token=<mapbox_access_token>";
 							$ch = curl_init();
 							curl_setopt($ch, CURLOPT_URL, $url);
 							curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)');
 							curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-							curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+							curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+							curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 							$data = curl_exec($ch);
 							$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 							$fsize=(curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD));
 							curl_close($ch);
 		
-							if($httpcode>=200 && $httpcode<300){
+							if($httpcode>=200 && $httpcode<300 && $this->looksLikeImage($data)){
 								file_put_contents($lookfile,$data);
 							}else{
-								exit("Error getting big tile from Macrostrat: $data");
+								return "Error getting big tile from Macrostrat: ".substr((string)$data,0,300);
 							}
 						}
 						
@@ -525,19 +527,19 @@ class StraboTileClass
 						$im2 = imagecrop($im, ['x' => $cropx, 'y' => $cropy, 'width' => 256, 'height' => 256]);
 						if ($im2 !== FALSE) {
 
-							//first, save tile
+							//cache the tile and let showSingleTile serve it from disk. The old code
+							//echoed the PNG inline here and then fell through without returning
+							//"success", so showSingleTile stamped the already-echoed image with
+							//HTTP 404 + application/json on every first-time fetch (2026-08-24).
 							imagepng($im2,"cache/macrostrat/$dir2/$dir3/$filename");
-							
-							//now, show tile
-							header('Content-Type: image/png');
-							imagepng($im2);
-							
 							imagedestroy($im2);
 						}else{
-							exit("Error creating image.");
+							imagedestroy($im);
+							return "Error creating image.";
 						}
 
 						imagedestroy($im);
+						return "success";
 					
 					}
 					
