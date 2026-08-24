@@ -442,6 +442,15 @@ class StraboTileClass
 						}
 						
 						$im = imagecreatefrompng($lookfile);
+						if($im === FALSE){
+							//corrupt or truncated big tile (old-era cache residue): remove it
+							//so the next request refetches a fresh one instead of failing forever
+							@unlink($lookfile);
+							return "Error reading big tile (corrupt cache entry removed; retry).";
+						}
+						//old burwell-era bigs are PALETTE PNGs; palette crops can abort GD's
+						//libpng write on older GD builds (leaving a 0-byte tile) -> normalize
+						if(!imageistruecolor($im)){ imagepalettetotruecolor($im); }
 
 						$im2 = imagescale($im, 256);
 						if ($im2 !== FALSE) {
@@ -450,8 +459,16 @@ class StraboTileClass
 							//echoed the PNG inline here and then fell through without returning
 							//"success", so showSingleTile stamped the already-echoed image with
 							//HTTP 404 + application/json on every first-time fetch (2026-08-24).
-							imagepng($im2,"cache/macrostrat/$dir2/$dir3/$filename");
+							$wrote = imagepng($im2,"cache/macrostrat/$dir2/$dir3/$filename");
 							imagedestroy($im2);
+							clearstatcache();
+							if($wrote === FALSE || (int)@filesize("cache/macrostrat/$dir2/$dir3/$filename") < 8){
+								//a failed/empty write must not persist: a 0-byte tile would be
+								//served forever by the cache-hit path (prod incident 2026-08-24)
+								@unlink("cache/macrostrat/$dir2/$dir3/$filename");
+								imagedestroy($im);
+								return "Error writing tile.";
+							}
 						}else{
 							imagedestroy($im);
 							return "Error creating image.";
@@ -523,6 +540,15 @@ class StraboTileClass
 						}
 						
 						$im = imagecreatefrompng($lookfile);
+						if($im === FALSE){
+							//corrupt or truncated big tile (old-era cache residue): remove it
+							//so the next request refetches a fresh one instead of failing forever
+							@unlink($lookfile);
+							return "Error reading big tile (corrupt cache entry removed; retry).";
+						}
+						//old burwell-era bigs are PALETTE PNGs; palette crops can abort GD's
+						//libpng write on older GD builds (leaving a 0-byte tile) -> normalize
+						if(!imageistruecolor($im)){ imagepalettetotruecolor($im); }
 
 						$im2 = imagecrop($im, ['x' => $cropx, 'y' => $cropy, 'width' => 256, 'height' => 256]);
 						if ($im2 !== FALSE) {
@@ -531,8 +557,16 @@ class StraboTileClass
 							//echoed the PNG inline here and then fell through without returning
 							//"success", so showSingleTile stamped the already-echoed image with
 							//HTTP 404 + application/json on every first-time fetch (2026-08-24).
-							imagepng($im2,"cache/macrostrat/$dir2/$dir3/$filename");
+							$wrote = imagepng($im2,"cache/macrostrat/$dir2/$dir3/$filename");
 							imagedestroy($im2);
+							clearstatcache();
+							if($wrote === FALSE || (int)@filesize("cache/macrostrat/$dir2/$dir3/$filename") < 8){
+								//a failed/empty write must not persist: a 0-byte tile would be
+								//served forever by the cache-hit path (prod incident 2026-08-24)
+								@unlink("cache/macrostrat/$dir2/$dir3/$filename");
+								imagedestroy($im);
+								return "Error writing tile.";
+							}
 						}else{
 							imagedestroy($im);
 							return "Error creating image.";
