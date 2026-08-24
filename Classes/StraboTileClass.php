@@ -1286,11 +1286,18 @@ class StraboTileClass
 									if($id=="") $this->dbDie($uid,"ID not provided.");
 									$url="https://api.mapbox.com/v4/$id/$z/$x/$y.$filetype?access_token=$access_token";
 								}elseif($layer=="macrostrat"){
-									//http://devtiles.strabospot.org/v4/mapwarper/32790/16/14986/25147.png
-									//http://devtiles.strabospot.org/v4/strabomymaps/5b75967d71bc0/15/7493/12572.png strabomymaps
 									$filetype="png";
 									$loadfile="$layer/$z/$x/$y.$filetype";
-									$url="http://macrotiles.strabospot.org/v5/macrostrat/$z/$x/$y.$filetype";
+									//Macrostrat tiles are COMPOSED (fetch the carto big at z-1, crop a
+									//256px quadrant), so no upstream URL can serve them directly. The old
+									//URL here pointed at macrotiles.strabospot.org, DEAD by 2026-08-24
+									//(bare Apache 404) - every macrostrat zip shipped with ALL tiles
+									//missing. Compose in-process with the same loadTile logic the v5
+									//single-tile path uses (cache-checked, self-healing). Deliberately
+									//NOT an HTTP call back through our own tile server: that self-loop
+									//pattern is what wedged the host Apache on 2026-08-18.
+									$url="";
+									$this->loadTile($loadfile,"");
 								}elseif($layer=="mapboxstyles"){
 									//http://devtiles.strabospot.org/v4/mapboxstyles/jasonash/cjl3xdv9h22j12tqfmyce22zq/16/14988/25147?access_token=<mapbox_access_token>
 									$filetype="";
@@ -1304,7 +1311,9 @@ class StraboTileClass
 								//loadTile($dirs,$access_token)  dirs looks like: mapbox.satellite/123/456/789.jpg
 								//$this->loadTile($loadfile,$access_token);
 							
-								if(!file_exists("cache/$loadfile")){
+								if($layer=="macrostrat"){
+									//already composed in-process above; nothing to batch-fetch
+								}elseif(!file_exists("cache/$loadfile")){
 									unset($thistile);
 									$tileuid = uniqid();
 									$thistile['uid']=$tileuid;
