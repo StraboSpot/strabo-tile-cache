@@ -19,9 +19,13 @@ $tile = new StraboTileClass();
 
 //http://tiles.strabospot.org/zipcount?layer=mapbox.satellite&extent=-97.6897537708287,38.565649842911625,-97.66258835792587,38.584975076629206&zoom=19
 
-$layer=$_GET['layer'];
-$extent=$_GET['extent'];
-$zoom=$_GET['zoom'];
+include("zipinput.php");
+
+$layer=isset($_GET['layer']) ? $_GET['layer'] : "";
+$extent=isset($_GET['extent']) ? $_GET['extent'] : "";
+$zoom=isset($_GET['zoom']) ? $_GET['zoom'] : "";
+
+zipInputRequire(array('layer' => $layer, 'extent' => $extent, 'zoom' => $zoom));
 
 
 

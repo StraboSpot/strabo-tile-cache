@@ -16,13 +16,16 @@ function dumpVar($var){
 	echo "</pre>";
 }
 
-$extent=$_GET['extent'];
-$zoom = str_replace(" ", "", $res);
-$zoom=$_GET['zoom'];
+include("zipinput.php");
+
+$extent=isset($_GET['extent']) ? $_GET['extent'] : "";
+$zoom=isset($_GET['zoom']) ? $_GET['zoom'] : "";
+
+zipInputRequire(array('extent' => $extent, 'zoom' => $zoom));
 
 //echo "python zipcount.py $extent $zoom";exit();
 
-exec("python zipCount.py $extent $zoom", $res);
+exec("python zipCount.py " . escapeshellarg($extent) . " " . escapeshellarg($zoom), $res);
 $res = $res[0];
 
 header('Content-Type: application/json; charset=utf-8');

@@ -29,7 +29,13 @@ if($moreget!=""){
 	}
 }
 
-$cruft = $_GET['cruft'];
+$cruft = isset($_GET['cruft']) ? $_GET['cruft'] : "";
+
+// the tile path becomes a cache path inside the web root: no dot segments, dotfiles or script extensions
+if(!is_string($cruft) || strpos($cruft, "..") !== false || preg_match('#(^|/)\.#', $cruft) || preg_match('#\.(php[0-9]?|phtml|phar|pht|htaccess|htpasswd|ini|cgi|pl|py|sh)(/|$)#i', $cruft)){
+	http_response_code(400);
+	exit();
+}
 
 $parts=explode("/",$cruft);
 

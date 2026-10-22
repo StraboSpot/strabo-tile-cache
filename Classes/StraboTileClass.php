@@ -1393,7 +1393,7 @@ class StraboTileClass
 								
 								//echo "ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile\n";
 								
-								exec("ln cache/$loadfile ziptemp/$zipdir/$uid/$newtile");
+								exec("ln " . escapeshellarg("cache/$loadfile") . " " . escapeshellarg("ziptemp/$zipdir/$uid/$newtile"));
 							
 								$jsontiles[]=$newtile;
 								$tilecount++;
@@ -1407,7 +1407,7 @@ class StraboTileClass
 							//exit();
 						
 							//Make details.json
-							exec("/usr/bin/du -s ziptemp/$zipdir/$uid/tiles/",$filesize);
+							exec("/usr/bin/du -s " . escapeshellarg("ziptemp/$zipdir/$uid/tiles/"),$filesize);
 							$filesize=$filesize[0];
 							$filesize=explode("\t",$filesize)[0];
 
@@ -1423,7 +1423,7 @@ class StraboTileClass
 
 							file_put_contents("ziptemp/$zipdir/$uid/details.json",$details);
 
-							exec("cd ziptemp/$zipdir; zip -r $uid.zip $uid",$results);
+							exec("cd " . escapeshellarg("ziptemp/$zipdir") . "; zip -r " . escapeshellarg("$uid.zip") . " " . escapeshellarg($uid),$results);
 						
 							$this->db->query("update tile_downloads set status='Zip File Ready.', percent=100 where uid='$uid'");
 							
