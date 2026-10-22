@@ -1156,6 +1156,13 @@ class StraboTileClass
 				if(is_numeric($zoom) && $zoom > -1){				
 					if($zoom <= $maxzoom){
 
+							// the tile list below would be built in full before its own 6000 check; refuse
+							// oversized requests first (same limit and message, without the memory)
+							$counts = $this->tileCounts($extent, $zoom);
+							if($counts['outer'] > 6000){
+								$this->doDie("Zoom Level is too large.");
+							}
+
 							//everything checks out. Create zip file to download.
 							//first, gather tile ids
 							$alltiles=[];
@@ -1647,47 +1654,14 @@ class StraboTileClass
 			if(is_numeric($zoom) && $zoom > -1){				
 				if($zoom <= $maxzoom){
 
-						$alltiles=[];
-				
-						$outercount = 0;
-					
-						
-						
-						//Get all tiles above zoom
-						
-						
-						$outertiles = $this->getOuterZooms($extent, $zoom);
-						foreach($outertiles as $tileId){
-							if(!in_array($tileId, $alltiles)){
-								array_push($alltiles,$tileId);
-								$outercount ++;
-							}
-							if($outercount>6000){ //3000
-								$this->doDie("Zoom Level is too large.");
+						// counted per zoom level instead of listing every tile (listing used up to 1 GB on a huge zoom);
+						// same numbers and the same limit as the old list-based count
+						$counts = $this->tileCounts($extent, $zoom);
+						if($counts['outer'] > 6000){
+							$this->doDie("Zoom Level is too large.");
+						}
 
-							}
-						}
-						
-						
-						
-						//Get zoom level tiles
-						if($zoom > 0){
-							$zoomleveltiles = $this->getTileIds($extent, $zoom);
-							foreach($zoomleveltiles as $tileId){
-								if(!in_array($tileId, $alltiles)){
-									array_push($alltiles,$tileId);
-								}
-							}
-						}
-						
-					
-						//$this->dumpVar($alltiles);exit();
-						
-						//$totalcount=count($alltiles);
-						
-						//echo $totalcount;
-						
-						$out['count']=count($alltiles);
+						$out['count'] = $counts['outer'] + ($zoom > 0 ? $counts['zoom'] : 0);
 						header('Content-Type: application/json');
 						echo json_encode($out);
 
@@ -2281,6 +2255,48 @@ class StraboTileClass
 		return ['x' => $x, 'y' => $y, 'z' => $z];
 	}
     
+    // Number of distinct tiles countZip and asyncDownloadZip collect for an extent and zoom, worked out per zoom
+    // level instead of listing every tile: 'zoom' = tiles at the zoom (getTileIds), 'outer' = their parent tiles at
+    // zoom 1 .. zoom-1 plus 0/0/0 (getOuterZooms). Tiles in an extent form a rectangle on every level, and a
+    // parent's column/row is the tile's shifted right by the zoom difference (lat2tile keeps rows in range), so
+    // each level is width x height. Same clamps and tile math as getTileIds.
+    public function tileCounts($bbox, $zoom) {
+		$zoom = (int)$zoom;
+		$parts = explode(",",$bbox);
+		$bl_long = trim($parts[0]);
+		$bl_lat = trim($parts[1]);
+		$ur_long = trim($parts[2]);
+		$ur_lat = trim($parts[3]);
+
+		if($bl_long == -180) $bl_long = -179.9;
+		if($bl_lat == -90) $bl_lat = -89.9;
+		if($ur_long == 180) $ur_long = 179.9;
+		if($ur_lat == 90) $ur_lat = 89.9;
+
+		$xa = (int)$this->long2tile($bl_long, $zoom);
+		$xb = (int)$this->long2tile($ur_long, $zoom);
+		$ya = (int)$this->lat2tile($bl_lat, $zoom);
+		$yb = (int)$this->lat2tile($ur_lat, $zoom);
+		$x0 = min($xa, $xb); $x1 = max($xa, $xb);
+		$y0 = max(min($ya, $yb), 0); $y1 = max($ya, $yb);
+
+		if($y1 < 0){
+			return array('outer' => 1, 'zoom' => 0);
+		}
+
+		$zoomTiles = ($x1 - $x0 + 1) * ($y1 - $y0 + 1);
+		$outer = 1; // 0/0/0
+		for($level = 1; $level <= $zoom - 1; $level++){
+			// getOuterZooms' walk caps a column/row past the edge (long2tile(180) is 2^zoom when 180 comes first)
+			// at the last one on the level
+			$shift = $zoom - $level;
+			$last = (1 << $level) - 1;
+			$outer += (min($x1 >> $shift, $last) - min($x0 >> $shift, $last) + 1) * (min($y1 >> $shift, $last) - min($y0 >> $shift, $last) + 1);
+		}
+
+		return array('outer' => $outer, 'zoom' => $zoomTiles);
+    }
+
     // returns an array of tileIds from two corners of a bounding box
     public function getTileIds($bbox, $zoom) { //bbox in form of lower_left_long, lower_left_lat, upper_right_long, upper_right_lat
       
