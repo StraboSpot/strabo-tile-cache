@@ -21,6 +21,13 @@ http://tiles.strabospot.org/v5/mapbox.outdoors/19/107092/200396.png?access_token
 
 ///usr/bin/php cmdlinezip.php abc123 mapboxstyles -97.89028775422965,38.45640879187488,-97.47830044954215,38.77830645970107 14 cjl3xdv9h22j12tqfmyce22zq <mapbox_access_token> jasonash
 
+// command line only (asynczip.php starts it); never over the web
+if(PHP_SAPI !== 'cli'){
+	exit();
+}
+
+include("zipinput.php");
+
 $uid=$argv[1];
 $layer=$argv[2];
 $extent=$argv[3];
@@ -30,6 +37,11 @@ $access_token=$argv[6];
 $username=$argv[7];
 
 if($uid==""){
+	exit();
+}
+
+if(!zipInputOk(array('mapid' => $uid, 'layer' => $layer, 'extent' => $extent, 'zoom' => $zoom, 'id' => $id,
+	'access_token' => $access_token, 'username' => $username))){
 	exit();
 }
 
