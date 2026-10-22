@@ -88,7 +88,8 @@ class StraboTileClass
   	/**
  	* Constructor
  	*/
- 	public function StraboTileClass(){
+ 	// PHP 8: a method named after the class is no longer a constructor
+ 	public function __construct(){
  		global $mapbox_access_token;
  		$this->db=$db;
  		$this->mapbox_access_token = $mapbox_access_token;
@@ -163,9 +164,9 @@ class StraboTileClass
 			$promises[$url] = $this->client->getAsync($url,['http_errors' => false]);
 		}
 
-		$results = Promise\unwrap($promises);
+		$results = Promise\Utils::unwrap($promises);
 
-		$results = Promise\settle($promises)->wait();
+		$results = Promise\Utils::settle($promises)->wait();
 
 		foreach($results as $key=>$value){
 			//echo "<div style=\"font-size:2em;\">$key</div>\n";
@@ -195,9 +196,9 @@ class StraboTileClass
 			$promises[$tile['uid']] = $this->client->getAsync($tile['url'],['http_errors' => false]);
 		}
 
-		$results = Promise\unwrap($promises);
+		$results = Promise\Utils::unwrap($promises);
 
-		$results = Promise\settle($promises)->wait();
+		$results = Promise\Utils::settle($promises)->wait();
 
 		foreach($results as $uid=>$value){
 
