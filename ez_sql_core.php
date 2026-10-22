@@ -58,7 +58,8 @@
 		*  Constructor
 		*/
 
-		function ezSQLcore()
+		// PHP 8: a method named after the class is no longer a constructor
+		function __construct()
 		{
 		}
 
