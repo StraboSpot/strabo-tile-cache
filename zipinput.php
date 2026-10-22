@@ -10,7 +10,8 @@ Keep it PHP 7.3 compatible (prod still runs the 7.3 image).
 function zipInputPatterns(){
 	return array(
 		'layer' => '/^[A-Za-z0-9._-]{1,40}$/',
-		'extent' => '/^-?[0-9]+(\.[0-9]+)?(,-?[0-9]+(\.[0-9]+)?){3}$/',
+		// four numbers as JavaScript prints them (left,bottom,right,top); tiny values near 0 come as e.g. 5e-7
+		'extent' => '/^-?[0-9]+(\.[0-9]+)?(e-[0-9]+)?(,-?[0-9]+(\.[0-9]+)?(e-[0-9]+)?){3}$/',
 		'zoom' => '/^[0-9]{1,2}$/',
 		'id' => '/^[A-Za-z0-9._-]{0,64}$/',
 		'access_token' => '/^[A-Za-z0-9._-]{0,300}$/',
